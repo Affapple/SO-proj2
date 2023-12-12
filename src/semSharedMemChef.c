@@ -48,6 +48,7 @@ static int lastGroup;
 static SHARED_DATA *sh;
 
 static void waitForOrder ();
+
 static void processOrder ();
 
 /**
