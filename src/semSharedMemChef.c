@@ -128,21 +128,32 @@ static void waitForOrder ()
 {
 
     //TODO insert your code here
-     
+    if(semDown (semgid, sh->waitOrder) == -1){
+        perror ("error on the up operation for the semaphore access ()");
+        exit (EXIT_FAILURE);
+    }
+
     if (semDown (semgid, sh->mutex) == -1) {                                                      /* enter critical region */
         perror ("error on the up operation for semaphore access (PT)");
         exit (EXIT_FAILURE);
     }
 
     //TODO insert your code here
-    
+    lastGroup = (int) sh->fSt.foodGroup;
+    sh->fSt.st.chefStat = COOK;
+    saveState(&sh->fSt, nFic);
 
     if (semUp (semgid, sh->mutex) == -1) {                                                      /* exit critical region */
         perror ("error on the up operation for semaphore access (PT)");
         exit (EXIT_FAILURE);
     }
 
+
     //TODO insert your code here
+    if (semUp (semgid, sh->waitOrder) == -1) {                                                      /* exit critical region */
+        perror ("error on the up operation for semaphore access ()");
+        exit (EXIT_FAILURE);
+    }
 }
 
 /**
@@ -159,6 +170,11 @@ static void processOrder ()
 
     //TODO insert your code here
 
+    if (semDown (semgid, sh->waiterRequestPossible) == -1) {                                                      /* exit critical region */
+        perror ("error on the up operation for semaphore access ()");
+        exit (EXIT_FAILURE);
+    }
+
     if (semDown (semgid, sh->mutex) == -1) {                                                      /* enter critical region */
         perror ("error on the up operation for semaphore access (PT)");
         exit (EXIT_FAILURE);
@@ -166,11 +182,18 @@ static void processOrder ()
 
     //TODO insert your code here
 
+    sh->fSt.st.chefStat = WAIT_FOR_ORDER;    
+    saveState(&sh->fSt, nFic);
+
     if (semUp (semgid, sh->mutex) == -1) {                                                      /* exit critical region */
         perror ("error on the up operation for semaphore access (PT)");
         exit (EXIT_FAILURE);
     }
 
     //TODO insert your code here
+    if (semUp (semgid, sh->waiterRequestPossible) == -1) {                                                      /* exit critical region */
+        perror ("error on the up operation for semaphore access ()");
+        exit (EXIT_FAILURE);
+    }
 }
 
