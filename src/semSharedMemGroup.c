@@ -189,6 +189,14 @@ static void eat (int id)
 static void checkInAtReception(int id)
 {
     // TODO insert your code here
+    
+    /* Verificar se rececionista esta livre para atender o grupo */
+    if (semDown (semgid, sh->receptionistRequestPossible) == -1) {                                                  /* enter critical region */
+        perror ("error on the down operation for semaphore access (CT)");
+        exit (EXIT_FAILURE);
+    }
+
+    /* Se estiver, escrever o pedido de mesa e acordar rececionista */
 
     if (semDown (semgid, sh->mutex) == -1) {                                                  /* enter critical region */
         perror ("error on the down operation for semaphore access (CT)");
@@ -197,6 +205,13 @@ static void checkInAtReception(int id)
 
     // TODO insert your code here
 
+    sh->fSt.st.groupStat[id] = ATRECEPTION;
+    sh->fSt.groupsWaiting++;
+    sh->fSt.receptionistRequest.reqType = TABLEREQ;
+    sh->fSt.receptionistRequest.reqGroup = id;
+
+    saveState(nFic, &sh->fSt);
+
     if (semUp (semgid, sh->mutex) == -1) {                                                      /* exit critical region */
         perror ("error on the up operation for semaphore access (CT)");
         exit (EXIT_FAILURE);
@@ -204,6 +219,18 @@ static void checkInAtReception(int id)
 
     // TODO insert your code here
 
+    /* Acordar rececionista */
+    if (semUp (semgid, sh->receptionistReq) == -1) {                                                  /* enter critical region */
+        perror ("error on the down operation for semaphore access (CT)");
+        exit (EXIT_FAILURE);
+    }
+
+
+    /* Ficar na lista de espera por uma mesa */
+    if (semDown (semgid, sh->waitForTable[id]) == -1) {                                                  /* enter critical region */
+        perror ("error on the down operation for semaphore access (CT)");
+        exit (EXIT_FAILURE);
+    }
 }
 
 /**
@@ -233,6 +260,7 @@ static void orderFood (int id)
     }
 
     // TODO insert your code here
+
 }
 
 /**

@@ -180,14 +180,28 @@ static int decideNextGroup()
  */
 static request waitForGroup()
 {
-    request ret; 
+    request ret;
+
+    /* start den schläfen */
+    if (semDown (semgid, sh->receptionistReq) == -1)  {                                                  /* enter critical region */
+        perror ("error on the up operation for semaphore access (WT)");
+        exit (EXIT_FAILURE);
+    }
 
     if (semDown (semgid, sh->mutex) == -1)  {                                                  /* enter critical region */
         perror ("error on the up operation for semaphore access (WT)");
         exit (EXIT_FAILURE);
     }
 
-    // TODO insert your code here
+    ret = sh->fSt.receptionistRequest;
+    if (ret.reqType == TABLEREQ)
+        sh->fSt.st.receptionistStat = ASSIGNTABLE;
+    else
+        sh->fSt.st.receptionistStat = RECVPAY;
+
+    groupRecord[ret.reqGroup] = WAIT;
+    
+    saveState(nFic, &sh->fSt);
     
     if (semUp (semgid, sh->mutex) == -1)      {                                             /* exit critical region */
         perror ("error on the down operation for semaphore access (WT)");
