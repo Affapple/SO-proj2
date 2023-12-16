@@ -122,7 +122,7 @@ int main (int argc, char *argv[])
         req = waitForGroup();
         switch(req.reqType) {
             case TABLEREQ:
-                   provideTableOrWaitingRoom(req.reqGroup); //TODO param should be groupid
+                   provideTableOrWaitingRoom(req.reqGroup);
                    break;
             case BILLREQ:
                    receivePayment(req.reqGroup);
@@ -194,12 +194,14 @@ static request waitForGroup()
     }
 
     ret = sh->fSt.receptionistRequest;
-    if (ret.reqType == TABLEREQ)
+    if (ret.reqType == TABLEREQ){
         sh->fSt.st.receptionistStat = ASSIGNTABLE;
+        groupRecord[ret.reqGroup] = WAIT;
+    }
     else
         sh->fSt.st.receptionistStat = RECVPAY;
-
-    groupRecord[ret.reqGroup] = WAIT;
+    
+    
     
     saveState(nFic, &sh->fSt);
     
@@ -245,6 +247,30 @@ static void provideTableOrWaitingRoom (int n)
     }
 
     // TODO insert your code here
+    // FIXME REPENSAR ESTA MERDA
+
+    int table = -1;
+    if (sh->fSt.assignedTable[0] == -1)
+        table = 0;
+    else if (sh->fSt.assignedTable[1] == -1)
+        table = 1;
+
+    if (table != -1){
+        sh->fSt.assignedTable[table] = n;
+        sh->fSt.st.groupStat[n] = FOOD_REQUEST;
+
+        groupRecord[n] = ATTABLE;
+        sh->fSt.groupsWaiting--;
+
+        /* Wakey wakey eggs and baccey */
+        /* Acordar grupo com mesa*/
+        if (semUp(semgid, sh->waitForTable[n]) == -1)  {                                                  /* enter critical region */
+            perror ("error on the up operation for semaphore access (WT)");
+            exit (EXIT_FAILURE);
+        }
+    }
+    /* Se não ha mesas disponiveis fazer alguma coisa */
+    /* FIXME     */
 
     if (semUp (semgid, sh->mutex) == -1) {                                               /* exit critical region */
         perror ("error on the down operation for semaphore access (WT)");
