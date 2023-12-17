@@ -136,13 +136,13 @@ int main (int argc, char *argv[])
  */
 static request waitForClientOrChef()
 {
-    request req; 
+    request req;
     if (semDown (semgid, sh->mutex) == -1)  {                                                  /* enter critical region */
         perror ("error on the up operation for semaphore access (WT)");
         exit (EXIT_FAILURE);
     }
-
-    // TODO insert your code here
+    /* Mudar o estado para waiting */
+    sh->fSt.st.waiterStat = WAIT_FOR_REQUEST;
     
     if (semUp (semgid, sh->mutex) == -1)      {                                             /* exit critical region */
         perror ("error on the down operation for semaphore access (WT)");
@@ -150,6 +150,11 @@ static request waitForClientOrChef()
     }
 
     // TODO insert your code here
+    /* Esperar por um request */
+    if (semDown (semgid, sh->waiterRequest) == -1)  {                                                  /* enter critical region */
+        perror ("error on the up operation for semaphore access (WT)");
+        exit (EXIT_FAILURE);
+    }
 
     if (semDown (semgid, sh->mutex) == -1)  {                                                  /* enter critical region */
         perror ("error on the up operation for semaphore access (WT)");
@@ -157,6 +162,10 @@ static request waitForClientOrChef()
     }
 
     // TODO insert your code here
+    /* Verificar se é pedido do chef ou de um grupo */
+    req = sh->fSt.waiterRequest;
+    sh->fSt.st.waiterStat = req.reqType;
+    
 
     if (semUp (semgid, sh->mutex) == -1) {                                                  /* exit critical region */
         perror ("error on the down operation for semaphore access (WT)");
@@ -185,7 +194,8 @@ static void informChef (int n)
         exit (EXIT_FAILURE);
     }
 
-    // TODO insert your code here
+    /* Escrever request no quadro do chef */
+    sh->fSt.foodGroup = n; 
     
     if (semUp (semgid, sh->mutex) == -1)                                                   /* exit critical region */
     { perror ("error on the down operation for semaphore access (WT)");

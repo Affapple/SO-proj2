@@ -201,14 +201,13 @@ static request waitForGroup()
     else
         sh->fSt.st.receptionistStat = RECVPAY;
     
-    
-    
     saveState(nFic, &sh->fSt);
     
     if (semUp (semgid, sh->mutex) == -1)      {                                             /* exit critical region */
         perror ("error on the down operation for semaphore access (WT)");
         exit (EXIT_FAILURE);
     }
+
 
     // TODO insert your code here
 
@@ -256,7 +255,7 @@ static void provideTableOrWaitingRoom (int n)
         table = 1;
 
     if (table != -1){
-        sh->fSt.assignedTable[table] = n;
+        sh->fSt.assignedTable[n] = table;
         sh->fSt.st.groupStat[n] = FOOD_REQUEST;
 
         groupRecord[n] = ATTABLE;
@@ -277,6 +276,11 @@ static void provideTableOrWaitingRoom (int n)
         exit (EXIT_FAILURE);
     }
 
+    /* Termina o ciclo de vida, ja mostrar que está livre */
+    if (semUp (semgid, sh->receptionistRequestPossible) == -1) {                                               /* exit critical region */
+        perror ("error on the down operation for semaphore access (WT)");
+        exit (EXIT_FAILURE);
+    }
 }
 
 /**
