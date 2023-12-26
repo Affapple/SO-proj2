@@ -51,6 +51,9 @@ receptionist_bin:
 clean:
 	rm -f *.o
 
+cleanMem:
+	ipcrm -S 0x61055936
+	ipcrm -M 0x61055936
+
 cleanall:	clean
 	rm -f ../run/$(MAIN) ../run/chef ../run/waiter ../run/group ../run/receptionist
-
