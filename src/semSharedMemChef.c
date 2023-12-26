@@ -148,7 +148,7 @@ static void waitForOrder (){
     }
 
     //TODO insert your code here
-    if (semUp (semgid, sh->waitOrder) == -1) {                                                      /* exit critical region */
+    if (semUp (semgid, sh->orderReceived) == -1) {                                                      /* exit critical region */
         perror ("error on the up operation for semaphore access ()");
         exit (EXIT_FAILURE);
     }
@@ -179,7 +179,8 @@ static void processOrder (){
     }
 
     //TODO insert your code here
-
+    sh->fSt.waiterRequest.reqGroup = lastGroup;
+    sh->fSt.waiterRequest.reqType = 4;
     sh->fSt.st.chefStat = WAIT_FOR_ORDER;    
     saveState(nFic,&sh->fSt);
 
