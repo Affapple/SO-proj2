@@ -180,7 +180,7 @@ static void processOrder (){
 
     //TODO insert your code here
     sh->fSt.waiterRequest.reqGroup = lastGroup;
-    sh->fSt.waiterRequest.reqType = 4;
+    sh->fSt.waiterRequest.reqType = FOODREADY;
     sh->fSt.st.chefStat = WAIT_FOR_ORDER;    
     saveState(nFic,&sh->fSt);
 
@@ -191,7 +191,7 @@ static void processOrder (){
     }
 
     //TODO insert your code here
-    if (semUp (semgid, sh->waiterRequestPossible) == -1) {                                                     /* exit critical region */
+    if (semUp (semgid, sh->waiterRequest) == -1) {                                                     /* exit critical region */
         perror ("error on the up operation for semaphore access ()");
         exit (EXIT_FAILURE);
     }
