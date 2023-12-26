@@ -144,7 +144,8 @@ static request waitForClientOrChef()
     // TODO insert your code here
     /* Mudar o estado para waiting */
     sh->fSt.st.waiterStat = WAIT_FOR_REQUEST;
-    
+    saveState(nFic, &sh->fSt);
+
     if (semUp (semgid, sh->mutex) == -1)      {                                             /* exit critical region */
         perror ("error on the down operation for semaphore access (WT)");
         exit (EXIT_FAILURE);
@@ -228,7 +229,6 @@ static void informChef (int n)
     { perror ("error on the down operation for semaphore access (WT)");
         exit (EXIT_FAILURE);
     }
-
 }
 
 /**
@@ -249,9 +249,9 @@ static void takeFoodToTable (int n)
 
     sh->fSt.st.waiterStat = TAKE_TO_TABLE;
 
-
-    int group = sh->fSt.foodGroup;
+    int group = sh->fSt.waiterRequest.reqGroup;
     int table = sh->fSt.assignedTable[group];
+    saveState(nFic, &sh->fSt);
     
     if (semUp (semgid, sh->foodArrived[table]) == -1)  {                                                  /* exit critical region */
         perror ("error on the down operation for semaphore access (WT)");
