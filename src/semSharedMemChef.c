@@ -138,7 +138,7 @@ static void waitForOrder (){
     }
 
     //TODO insert your code here
-    lastGroup = (int) sh->fSt.foodGroup;
+    lastGroup = sh->fSt.foodGroup;
     sh->fSt.st.chefStat = COOK;
     saveState(nFic,&sh->fSt);
 
