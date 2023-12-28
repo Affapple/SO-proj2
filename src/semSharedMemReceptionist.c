@@ -152,16 +152,16 @@ static int decideTableOrWait(int n)
     // TODO insert your code here
     // FIXME pensar maneira melhor, esta é rafeira
 
-    int freeTable[NUMTABLES] = {true};
+    int inUse[NUMTABLES] = {0};
 
     for (int groupID = 0; groupID < MAXGROUPS; groupID++ ){
         if (groupRecord[groupID] == ATTABLE){
-            freeTable[sh->fSt.assignedTable[groupID]] = false;
+            inUse[sh->fSt.assignedTable[groupID]] = 1;
         }
     }
 
     for (int tableID = 0; tableID < NUMTABLES; tableID++)
-        if (freeTable[tableID])
+        if (inUse[tableID] == 0)
             return tableID;
 
     return -1;
@@ -304,7 +304,7 @@ static void provideTableOrWaitingRoom (int n)
 
 static void receivePayment (int n)
 {
-    int nextGroup;
+    int nextGroup = -1;
     if (semDown (semgid, sh->mutex) == -1)  {                                                  /* enter critical region */
         perror ("error on the up operation for semaphore access (RC)");
         exit (EXIT_FAILURE);
@@ -313,29 +313,29 @@ static void receivePayment (int n)
     // TODO insert your code here
     sh->fSt.st.receptionistStat = RECVPAY;
     groupRecord[n] = DONE;
-    saveState(nFic, &sh->fSt);
-
-
-    /* Dar lugar a outra pessoa*/
-    if (sh->fSt.groupsWaiting > 0){
-        nextGroup = decideNextGroup();
-        sh->fSt.groupsWaiting--;
-    }
 
     /* Acordar grupo que acabou de pagar */
     if (semUp (semgid, sh->tableDone[sh->fSt.assignedTable[n]]) == -1)  {                                                  /* exit critical region */
         perror ("error on the down operation for semaphore access (RC)");
         exit (EXIT_FAILURE);
     }
+    sh->fSt.assignedTable[n] = -1;
+
+    saveState(nFic, &sh->fSt);    
+    /* Dar lugar a outra pessoa*/
+    if (0 < sh->fSt.groupsWaiting){
+        nextGroup = decideNextGroup();
+        sh->fSt.groupsWaiting--;
+    }
 
     if (semUp (semgid, sh->mutex) == -1)  {                                                  /* exit critical region */
      perror ("error on the down operation for semaphore access (RC)");
         exit (EXIT_FAILURE);
     }
-    // TODO insert your code here
-    provideTableOrWaitingRoom(nextGroup);
 
-    /* Acordar grupo que pagou */
+    // TODO insert your code here
+    if (nextGroup != -1)
+        provideTableOrWaitingRoom(nextGroup);
 
 }
 
