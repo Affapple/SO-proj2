@@ -9,9 +9,6 @@ GROUP        = semSharedMemGroup
 RECEPTIONIST = semSharedMemReceptionist
 MAIN         = probSemSharedMemRestaurant
 
-SEMID 		 = 1
-MEMID		 = 1000
-
 OBJS = sharedMemory.o semaphore.o logging.o
 
 .PHONY: all ct ct_ch all_bin \
@@ -57,6 +54,6 @@ clean:
 cleanall:	clean
 	rm -f ../run/$(MAIN) ../run/chef ../run/waiter ../run/group ../run/receptionist
 
-memclear:
-	ipcrem -s ${SEMID}
-	ipcrem -m ${MEMID}
+cleanMem:
+	ipcrm -S 0x61055936
+	ipcrm -M 0x61055936

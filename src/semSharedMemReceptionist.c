@@ -220,8 +220,7 @@ static request waitForGroup()
     if (semDown (semgid, sh->receptionistReq) == -1)  {                                                  /* enter critical region */
         perror ("error on the up operation for semaphore access (RC)");
         exit (EXIT_FAILURE);
-    }
-    
+    }    
 
     /* Chegou grupo, guardar request */
     if (semDown (semgid, sh->mutex) == -1)  {                                                  /* enter critical region */
@@ -319,7 +318,8 @@ static void receivePayment (int n)
 
     groupRecord[n] = DONE;
 
-    /* Acordar grupo que acabou de pagar */
+    /* Acordar grupo que acabou de pagar e libertar mesa */
+    
     if (semUp (semgid, sh->tableDone[sh->fSt.assignedTable[n]]) == -1)  {                                                  /* exit critical region */
         perror ("error on the down operation for semaphore access (RC)");
         exit (EXIT_FAILURE);
