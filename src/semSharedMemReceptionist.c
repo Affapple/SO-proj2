@@ -312,6 +312,8 @@ static void receivePayment (int n)
 
     // TODO insert your code here
     sh->fSt.st.receptionistStat = RECVPAY;
+    saveState(nFic, &sh->fSt);
+
     groupRecord[n] = DONE;
 
     /* Acordar grupo que acabou de pagar */
@@ -320,8 +322,7 @@ static void receivePayment (int n)
         exit (EXIT_FAILURE);
     }
     sh->fSt.assignedTable[n] = -1;
-
-    saveState(nFic, &sh->fSt);    
+   
     /* Dar lugar a outra pessoa*/
     if (0 < sh->fSt.groupsWaiting){
         nextGroup = decideNextGroup();
