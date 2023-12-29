@@ -271,6 +271,9 @@ static void provideTableOrWaitingRoom (int n)
     /* Verificar mesas livres: -1 se ocupadas, else table ID */
     int table;
     if ((table = decideTableOrWait(n)) != -1){
+        if (groupRecord[n] == WAIT)
+            sh->fSt.groupsWaiting--;
+
         sh->fSt.assignedTable[n] = table;
         groupRecord[n] = ATTABLE;
         
@@ -322,11 +325,10 @@ static void receivePayment (int n)
         exit (EXIT_FAILURE);
     }
     sh->fSt.assignedTable[n] = -1;
-   
+
     /* Dar lugar a outra pessoa*/
     if (0 < sh->fSt.groupsWaiting){
         nextGroup = decideNextGroup();
-        sh->fSt.groupsWaiting--;
     }
 
     if (semUp (semgid, sh->mutex) == -1)  {                                                  /* exit critical region */
