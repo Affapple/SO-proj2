@@ -187,9 +187,7 @@ static void eat (int id)
  *  \return true if first group, false otherwise
  */
 static void checkInAtReception(int id)
-{
-    // TODO insert your code here
-    
+{    
     /* Pedir atenção do rececionista */
     if (semDown (semgid, sh->receptionistRequestPossible) == -1) {
         perror ("error on the down operation for semaphore access (CT)");
@@ -349,7 +347,7 @@ static void waitFood (int id)
 static void checkOutAtReception (int id)
 {
     /* Pedir a atençao do rececionista */
-    if (semUp (semgid, sh->receptionistRequestPossible) == -1) {
+    if (semDown (semgid, sh->receptionistRequestPossible) == -1) {
         perror ("error on the down operation for semaphore access (CT)");
         exit (EXIT_FAILURE);
     }

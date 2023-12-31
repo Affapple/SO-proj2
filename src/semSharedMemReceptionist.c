@@ -149,9 +149,6 @@ int main (int argc, char *argv[])
  */
 static int decideTableOrWait(int n)
 {
-    // TODO insert your code here
-    // FIXME pensar maneira melhor, esta é rafeira
-
     int inUse[NUMTABLES] = {0};
 
     for (int groupID = 0; groupID < MAXGROUPS; groupID++ ){
@@ -177,7 +174,6 @@ static int decideTableOrWait(int n)
  */
 static int decideNextGroup()
 {
-     //TODO insert your code here
     for (int groupID = 0; groupID < MAXGROUPS; groupID++ ){
         if (groupRecord[groupID] == WAIT ){
             return groupID;
